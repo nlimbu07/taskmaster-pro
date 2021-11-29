@@ -1,25 +1,22 @@
 var tasks = {};
 
-var createTask = function(taskText, taskDate, taskList) {
+var createTask = function (taskText, taskDate, taskList) {
   // create elements that make up a task item
-  var taskLi = $("<li>").addClass("list-group-item");
-  var taskSpan = $("<span>")
-    .addClass("badge badge-primary badge-pill")
+  var taskLi = $('<li>').addClass('list-group-item');
+  var taskSpan = $('<span>')
+    .addClass('badge badge-primary badge-pill')
     .text(taskDate);
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(taskText);
+  var taskP = $('<p>').addClass('m-1').text(taskText);
 
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
-
   // append to ul list on the page
-  $("#list-" + taskList).append(taskLi);
+  $('#list-' + taskList).append(taskLi);
 };
 
-var loadTasks = function() {
-  tasks = JSON.parse(localStorage.getItem("tasks"));
+var loadTasks = function () {
+  tasks = JSON.parse(localStorage.getItem('tasks'));
 
   // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
@@ -27,164 +24,136 @@ var loadTasks = function() {
       toDo: [],
       inProgress: [],
       inReview: [],
-      done: []
+      done: [],
     };
   }
 
   // loop over object properties
-  $.each(tasks, function(list, arr) {
+  $.each(tasks, function (list, arr) {
     console.log(list, arr);
     // then loop over sub-array
-    arr.forEach(function(task) {
+    arr.forEach(function (task) {
       createTask(task.text, task.date, list);
     });
   });
 };
 
-var saveTasks = function() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+var saveTasks = function () {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 };
 
-
-
-
 // modal was triggered
-$("#task-form-modal").on("show.bs.modal", function() {
+$('#task-form-modal').on('show.bs.modal', function () {
   // clear values
-  $("#modalTaskDescription, #modalDueDate").val("");
+  $('#modalTaskDescription, #modalDueDate').val('');
 });
 
 // modal is fully visible
-$("#task-form-modal").on("shown.bs.modal", function() {
+$('#task-form-modal').on('shown.bs.modal', function () {
   // highlight textarea
-  $("#modalTaskDescription").trigger("focus");
+  $('#modalTaskDescription').trigger('focus');
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$('#task-form-modal .btn-primary').click(function () {
   // get form values
-  var taskText = $("#modalTaskDescription").val();
-  var taskDate = $("#modalDueDate").val();
+  var taskText = $('#modalTaskDescription').val();
+  var taskDate = $('#modalDueDate').val();
 
   if (taskText && taskDate) {
-    createTask(taskText, taskDate, "toDo");
+    createTask(taskText, taskDate, 'toDo');
 
     // close modal
-    $("#task-form-modal").modal("hide");
+    $('#task-form-modal').modal('hide');
 
     // save in tasks array
     tasks.toDo.push({
       text: taskText,
-      date: taskDate
+      date: taskDate,
     });
 
-    saveTasks();  
+    saveTasks();
   }
 });
 
-    // task text was clicked
-    $(".list-group").on("click", "p", function(){
-      // get current text of p element
-      var text = $(this)
-      .text()
-      .trim();  
-      
-      // replace p element with a new textarea
-      var textInput = $("<textarea>")
-      .addClass("form-control")
-      .val(text);
-      $(this).replaceWith(textInput);
+// task text was clicked
+$('.list-group').on('click', 'p', function () {
+  // get current text of p element
+  var text = $(this).text().trim();
 
-      // auto focus new element
-      textInput.trigger("focus");       
-    });    
-  
-    // editable field was un-focused
-    $(".list-group").on("blur", "textarea", function() {
-   // get the textarea's current value/text
-   var text = $(this)
-   .val()
-   .trim();
+  // replace p element with a new textarea
+  var textInput = $('<textarea>').addClass('form-control').val(text);
+  $(this).replaceWith(textInput);
 
-   //get status type and position in the list
-   var status = $(this)
-   .closest(".list-group")
-   .attr("id")
-   .replace("list-", "");
-      // get the task's position in the list of other li elements
-   var index = $(this)
-   .closest(".list-group-item")
-   .index();
+  // auto focus new element
+  textInput.trigger('focus');
+});
 
-   // update task in array and re-save to localstorage
-   tasks[status][index].text = text;
-   saveTasks();
+// editable field was un-focused
+$('.list-group').on('blur', 'textarea', function () {
+  // get the textarea's current value/text
+  var text = $(this).val().trim();
 
-   // recreate p element
-   var taskP = $("<p>")
-   .addClass("m-1")
-   .text(text);
+  //get status type and position in the list
+  var status = $(this).closest('.list-group').attr('id').replace('list-', '');
+  // get the task's position in the list of other li elements
+  var index = $(this).closest('.list-group-item').index();
 
-   // replace textarea with new content
-   $(this).replaceWith(taskP);
- });
+  // update task in array and re-save to localstorage
+  tasks[status][index].text = text;
+  saveTasks();
 
- // due date was clicked
- $(".list-group").on("click", "span", function(){
-   //get current text
-   var date = $(this)
-   .text()
-   .trim();
+  // recreate p element
+  var taskP = $('<p>').addClass('m-1').text(text);
+
+  // replace textarea with new content
+  $(this).replaceWith(taskP);
+});
+
+// due date was clicked
+$('.list-group').on('click', 'span', function () {
+  //get current text
+  var date = $(this).text().trim();
 
   // create new input element
-  var dateInput = $("<input>")
-  .attr("type", "text")
-  .addClass("form-control")
-  .val(date); 
+  var dateInput = $('<input>')
+    .attr('type', 'text')
+    .addClass('form-control')
+    .val(date);
   $(this).replaceWith(dateInput);
 
   // automatically focus on new element
-  dateInput.trigger("focus");
- });
+  dateInput.trigger('focus');
+});
 
 // value of due date was changed
-$(".list-group").on("blur", "input[type='text']", function(){  
-  var date = $(this)
-  .val()
-  .trim();
+$('.list-group').on('blur', "input[type='text']", function () {
+  var date = $(this).val().trim();
 
   // get the status type and position in the list
-  var status = $(this)
-  .closest(".list-group")
-  .attr("id")
-  .replace("list-", "");
+  var status = $(this).closest('.list-group').attr('id').replace('list-', '');
   // get the task's position in the list of other li elements
-  var index = $(this)
-  .closest(".list-group-item")
-  .index();
+  var index = $(this).closest('.list-group-item').index();
 
   // update task in array and re-save to localstorage
   tasks[status][index].date = date;
-  saveTasks()
+  saveTasks();
 
   // recreate span element with bootstrap classes
-  var taskSpan = $("<span>")
-  .addClass("badge badge-primary badge-pill")
-  .text(date);  
+  var taskSpan = $('<span>')
+    .addClass('badge badge-primary badge-pill')
+    .text(date);
   $(this).replaceWith(taskSpan);
 });
 
-
 // remove all tasks
-$("#remove-tasks").on("click", function() {
+$('#remove-tasks').on('click', function () {
   for (var key in tasks) {
     tasks[key].length = 0;
-    $("#list-" + key).empty();
+    $('#list-' + key).empty();
   }
   saveTasks();
 });
 
 // load tasks for the first time
 loadTasks();
-
-
